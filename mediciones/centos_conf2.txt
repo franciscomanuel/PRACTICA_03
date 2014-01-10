@@ -1,0 +1,43 @@
+This is ApacheBench, Version 2.3 <$Revision: 1430300 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 192.168.1.12 (be patient)
+
+
+Server Software:        Apache/2.2.15
+Server Hostname:        192.168.1.12
+Server Port:            80
+
+Document Path:          /listado.php
+Document Length:        3708 bytes
+
+Concurrency Level:      10
+Time taken for tests:   4.597 seconds
+Complete requests:      500
+Failed requests:        0
+Write errors:           0
+Total transferred:      1951000 bytes
+HTML transferred:       1854000 bytes
+Requests per second:    108.76 [#/sec] (mean)
+Time per request:       91.944 [ms] (mean)
+Time per request:       9.194 [ms] (mean, across all concurrent requests)
+Transfer rate:          414.44 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0   36 117.0     19    1011
+Processing:     5   56  30.5     54     149
+Waiting:        4   55  30.4     53     148
+Total:          5   92 122.8     88    1106
+
+Percentage of the requests served within a certain time (ms)
+  50%     88
+  66%    100
+  75%    105
+  80%    109
+  90%    122
+  95%    132
+  98%    139
+  99%   1049
+ 100%   1106 (longest request)

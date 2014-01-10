@@ -10,7 +10,7 @@ El software de virtualización que voy a usar es VMware Player.
 
 ### Prueba 1: Ubuntu Server + Apache + MySQL
 
-Voy a realizar esta configuración sobre un **Ubuntu 12.04.3 Server 32 bits**, con un servidor web **Apache** y un sistema gestor de base de datos **MySQL**. Lo primero que hay que hacer es configurar el interfaz de red de ambas máquinas para que tengan una ip fija (necesario para realizar las configuraciones entre las máquinas), para ello primero hay que saber cual es la puerta de enlace de las máquinas virtuales, lo que se puede comprobar con **`route -n`**; en mi caso es **192.168.1.1**, por lo que las direcciones a asignar tienen que estar en la misma subred. Conocida esta dirección, lo siguiente es editar el archivo **/etc/network/interfaces** para que quede la siguiente manera:
+Voy a realizar esta configuración sobre un **Ubuntu 12.04.3 Server 32 bits**, con un servidor web **Apache** y un sistema gestor de base de datos **MySQL**. Lo primero que hay que hacer es configurar el interfaz de red de ambas máquinas para que tengan una IP fija (necesario para realizar las configuraciones entre las máquinas), para ello primero hay que saber cual es la puerta de enlace de las máquinas virtuales, lo que se puede comprobar con **`route -n`**; en mi caso es **192.168.1.1**, por lo que las direcciones a asignar tienen que estar en la misma subred. Conocida esta dirección, lo siguiente es editar el archivo **/etc/network/interfaces** para que quede la siguiente manera:
 
 ```
 auto lo
@@ -166,7 +166,7 @@ sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
 sudo service iptables save
 ```
 
-Como ya he modificado la aplicacion para que funcione en esta nueva versión, en vez de volver a adaptarla completamente (solo tendré que cambiar un par de direcciones IP), la subo al repositorio de la practica 3 y la descargo desde la nueva máquina. Para instalar la aplicación en Apache, copio el contenido de la carpeta **aplicacion** del interior de la carpeta **PRACTICA_03** y lo pego en la carpeta **/var/www/html**.
+Como ya he modificado la aplicación para que funcione en esta nueva versión, en vez de volver a adaptarla completamente (solo tendré que cambiar un par de direcciones IP), la subo al repositorio de la practica 3 y la descargo desde la nueva máquina. Para instalar la aplicación en Apache, copio el contenido de la carpeta **aplicacion** del interior de la carpeta **PRACTICA_03** y lo pego en la carpeta **/var/www/html**.
 
 ```
 sudo apt-get install git
@@ -176,7 +176,7 @@ cp PRACTICA_03/aplicacion/* /var/www/html
 
 ![pra03_img09](imagenes/pra03_img09.png)
 
-Es el momento de configurar el servidor MySQL en su correspondiente máquina, MySQL no se instala completa y automáticamente desde el gestor de paquetes como pasaba en Ubuntu. Con los paquetes **mysql** y **mysql-server** instalados, para finalizar la instalacion introducimos:
+Es el momento de configurar el servidor MySQL en su correspondiente máquina, MySQL no se instala completa y automáticamente desde el gestor de paquetes como pasaba en Ubuntu. Con los paquetes **mysql** y **mysql-server** instalados, para finalizar la instalación introducimos:
 
 ```
 sudo service mysqld start
@@ -201,7 +201,7 @@ mysql -u root -p < acceso.sql
 
 ![pra03_img10](imagenes/pra03_img10.png)
 
-Volver a compruebar que la base de datos se ha importado correctamente:
+Volver a comprobar que la base de datos se ha importado correctamente:
 
 ```
 mysql> use acceso;
@@ -231,7 +231,7 @@ sudo service iptables save
 
 ![pra03_img13](imagenes/pra03_img13.png)
 
-Por la configuración de seguridad por defecto de CentOS, podemos tener problemas de conexión con la base de datos desde Apache, esto se debe a la protección impuesta por SELinux en el kernel, en concreto a un directiva de su configuración que hace que los scripts y módulos de Apache por defecto no puedan realizar conexiones de red. Esto puede ser desactivado con el siguiente comando:
+Por la configuración de seguridad por defecto de CentOS, podemos tener problemas de conexión con la base de datos desde Apache, esto se debe a la protección impuesta por SELinux en el kernel, en concreto a un directiva de su configuración que hace que los scripts y módulos de Apache por defecto no puedan realizar conexiones de red. Esto puede ser desactivado con el siguiente comando desde la máquina con Apache:
 
 ```
 sudo setsebool -P httpd_can_network_connect=1
@@ -253,4 +253,35 @@ sudo service mysqld restart
 
 ### Configuraciones
 
-Una vez que todas las máquinas virtuales listas, es el momento de preparar diferentes combinaciones de recursos para buscar el mejor rendimiento con los recursos justos, lo cual es el objetivo principal de la práctica.
+Una vez que todas las máquinas virtuales estén listas, es el momento de preparar diferentes configuraciones de recursos para buscar el mejor rendimiento con los recursos justos, lo cual es el objetivo principal de la práctica. Las diferentes configuraciones que voy a probar son:
+
+* Configuración 1: 1 procesador   / 256  MB RAM
+* Configuración 2: 1 procesador   / 512  MB RAM
+* Configuración 3: 1 procesador   / 1024 MB RAM
+* Configuración 4: 2 procesadores / 256  MB RAM
+* Configuración 5: 2 procesadores / 512  MB RAM
+* Configuración 6: 2 procesadores / 1024 MB RAM
+
+El motivo de usar estas configuraciones es para probar tanto con una cantidad de recursos por debajo de lo recomendadas para el sistema, como con los recursos mínimos recomendados y finalmente con más recursos de los aparentemente necesarios; en cualquier caso, viendo las configuraciones vemos que las cantidades son sobrepasadas por los equipos de hoy en día de sobra, por lo que fácilmente se podrían incluir varias en una sola máquina, que es precisamente lo que nos interesa.
+
+Para probar el rendimiento de cada una de las configuraciones voy a usar **ab**, siendo el recurso a solicitar el archivo **listado.php**, una página que se conecta remotamente desde la máquina de Apache a la máquina de MySQL para hacer unas 30 consultas de selección. Como la aplicación no tendría un acceso masivo, sino algo más bien discreto, para ser una prueba "realista" el **número de conexiones** que se van a realizar es **500** con una **concurrencia** de **10**.
+
+![pra03_img16](imagenes/pra03_img16.png)
+
+Una vez realizadas las pruebas con las configuraciones dichas tanto en Ubuntu Server como en CentOS, los resultados obtenidos son los siguientes:
+
+|               |   |                      |      Ubuntu Server      |                                |   |                      |          CentOS         |                                |
+|:-------------:|:-:|:--------------------:|:-----------------------:|:------------------------------:|:-:|:--------------------:|:-----------------------:|:------------------------------:|
+| Configuración |   | Tiempo ejecución (s) | Solicitudes por segundo | Velocidad transferencia (KB/s) |   | Tiempo ejecución (s) | Solicitudes por segundo | Velocidad transferencia (KB/s) |
+|       #1      |   |        501,565       |           1,00          |              3,73              |   |         4,858        |          102,92         |             392,19             |
+|       #2      |   |        503,685       |           0,99          |              3,71              |   |         4,597        |          108,76         |             414,44             |
+|       #3      |   |        503,732       |           0,99          |              3,71              |   |         5,045        |          99,11          |             377,68             |
+|       #4      |   |        503,627       |           0,99          |              3,71              |   |         4,827        |          103,59         |             394,72             |
+|       #5      |   |        504,348       |           0,99          |              3,71              |   |         4,883        |          102,39         |             390,17             |
+|       #6      |   |        503,797       |           0,99          |              3,71              |   |         5,225        |          95,69          |             364,64             |
+
+Como se ve en los resultados, para esta aplicación en concreto se podría usar una cantidad de recursos bastante baja, incluso más baja que los mínimos recomendados, ya que para todas las configuraciones los resultados obtenidos son muy similares. El haber hecho este estudio de las necesidades de la aplicación permite dedicarle una cantidad justa de recursos, sin desaprovechar, lo que si pasaría si por ejemplo simplemente nos hubiéramos fiado de los recursos recomendados para el sistema operativo.
+
+Caso a parte es el mejor rendimiento a un nivel desproporcionado que se obtenido con CentOS que con Ubuntu Server, sobretodo teniendo en cuenta que las máquinas de ambos sistemas se han realizado configuraciones genéricas, sin ningún tipo de configuración especial que pueda hacer aumentar o disminuir el rendimiento, por lo que quizás sea debido a aspectos internos de los propios sistemas a la hora de realizar las conexiones.
+
+Teniendo ya decidido que lo mejor en cuanto a rendimiento sería montar la aplicación en ambas máquinas con sistema operativo CentOS, 1 procesador y un 256 MB de RAM, una cuestión menos importante, pero que también podríamos tener en consideración es el tamaño de almacenamiento necesitado; en este caso tanto la máquina CentOS con Apache como la máquina CentOS con MySQL han ocupado finalmente 2'1 GB (algo más que las máquinas con Ubuntu Server donde la máquina con Apache ha ocupado 1'3 GB y la máquina con MySQL ha ocupado 1'5 GB). Así que con todo esto ya analizado, se puede ver que si tuviéramos que montar varias aplicaciones con unas necesidades similares, se podrían montar varias máquinas virtuales para tal fin en una única máquina física.
