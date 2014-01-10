@@ -52,7 +52,7 @@
 			echo "<ul style='list-style-type:circle'>";
 
 			foreach($datos as $alumno){
-				echo "<li> <a href='http://localhost/acceso.php?campoIdAlumno=".$alumno."'> ".$alumno." </a> </li>";
+				echo "<li> <a href='http://192.168.1.11/acceso.php?campoIdAlumno=".$alumno."'> ".$alumno." </a> </li>";
 			}
 
 			echo "</ul>";
